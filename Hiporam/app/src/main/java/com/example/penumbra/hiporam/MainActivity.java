@@ -85,17 +85,16 @@ protected void onCreate(Bundle savedInstanceState)
             search(searchedTag);
         }
     });
-
     search(searchedTag);
 }
 
-public void search(String tag)
+public void search(String tags)
 {
 
 
 
 
-    apiService.getTag(tag, new Callback<InstagramItem>()
+    apiService.getTag(tags, new Callback<InstagramItem>()
     {
         @Override
         public void success(InstagramItem instagramItem, Response response)
@@ -114,7 +113,8 @@ public void search(String tag)
 
 private void loadMore(String tag)
 {
-    apiService.loadMore(tag, latestSearchItem.getPagination().getNextMaxTagId(), new Callback<InstagramItem>()
+
+    apiService.loadMore(tag, latestSearchItem.getPagination().getNextMaxTagId(),latestSearchItem.getPagination().getNextMinId(), new Callback<InstagramItem>()
     {
         @Override
         public void success(InstagramItem instagramItem, Response response)

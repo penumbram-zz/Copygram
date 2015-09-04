@@ -3,6 +3,7 @@ package com.example.penumbra.hiporam.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +51,7 @@ public class MyArrayAdapter extends ArrayAdapter<PairPhotoItem>
         Picasso.with(context).load(photoItem.url).fit().centerCrop().into(imageView);
         ImageView imageView2 = (ImageView) view.findViewById(R.id.list_item_image_right);
         Picasso.with(context).load(photoItem2.url).fit().centerCrop().into(imageView2);
-
+        view.setTag(position);
         return view;
     }
 }
