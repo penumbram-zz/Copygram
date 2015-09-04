@@ -15,6 +15,8 @@ import com.example.penumbra.hiporam.model.PairPhotoItem;
 import com.example.penumbra.hiporam.model.PhotoItem;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 /**
  * Created by penumbra on 04.09.2015.
  */
@@ -22,9 +24,9 @@ public class MyArrayAdapter extends ArrayAdapter<PairPhotoItem>
 {
     Context context;
     int resource;
-    PairPhotoItem[] pairPhotoItems;
+    ArrayList<PairPhotoItem> pairPhotoItems;
 
-    public MyArrayAdapter(Context context, int resource, PairPhotoItem[] objects)
+    public MyArrayAdapter(Context context, int resource, ArrayList<PairPhotoItem> objects)
     {
         super(context, resource, objects);
         this.context = context;
@@ -41,8 +43,8 @@ public class MyArrayAdapter extends ArrayAdapter<PairPhotoItem>
             view = inflater.inflate(resource,parent,false);
         }
 
-        PhotoItem photoItem = pairPhotoItems[position].firstPhotoItem;
-        PhotoItem photoItem2 = pairPhotoItems[position].secondPhotoItem;
+        PhotoItem photoItem = pairPhotoItems.get(position).firstPhotoItem;
+        PhotoItem photoItem2 = pairPhotoItems.get(position).secondPhotoItem;
 
         ImageView imageView = (ImageView) view.findViewById(R.id.list_item_image_left);
         Picasso.with(context).load(photoItem.url).fit().centerCrop().into(imageView);

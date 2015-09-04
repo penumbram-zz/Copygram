@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.penumbra.hiporam.API.instagramapi;
 import com.example.penumbra.hiporam.adapter.MyArrayAdapter;
+import com.example.penumbra.hiporam.listener.MyOnScrollListener;
 import com.example.penumbra.hiporam.model.Datum;
 import com.example.penumbra.hiporam.model.InstagramItem;
 import com.example.penumbra.hiporam.model.PairPhotoItem;
@@ -43,6 +44,12 @@ private ListView mainListView ;
 private ArrayAdapter<String> listAdapter ;
 
 private ListView listView;
+InstagramItem latestSearchItem;
+RestAdapter restAdapter;
+instagramapi apiService;
+String searchedTag = "snow";
+MyArrayAdapter adapter;
+ArrayList<PairPhotoItem> listItems = new ArrayList<PairPhotoItem>();
 
 @Override
 protected void onCreate(Bundle savedInstanceState)
@@ -52,18 +59,18 @@ protected void onCreate(Bundle savedInstanceState)
     setUpActionBar();
 
     listView = (ListView) findViewById(R.id.list_view);
-    listView.setOnScrollListener(new AbsListView.OnScrollListener()
+
+    restAdapter = new RestAdapter.Builder()
+            .setEndpoint(BASE_URL)
+            .build();
+    apiService = restAdapter.create(instagramapi.class);
+
+    listView.setOnScrollListener(new MyOnScrollListener()
     {
         @Override
-        public void onScrollStateChanged(AbsListView absListView, int i)
+        public void onLoadMore(int page, int totalItemsCount)
         {
-
-        }
-
-        @Override
-        public void onScroll(AbsListView absListView, int i, int i2, int i3)
-        {
-
+            loadMore(searchedTag);
         }
     });
     ImageView searchTrigger = (ImageView) findViewById(R.id.search_trigger);
@@ -74,27 +81,26 @@ protected void onCreate(Bundle savedInstanceState)
         {
           //  Toast.makeText(MainActivity.this,"Search",Toast.LENGTH_LONG).show();
             EditText editText = (EditText) findViewById(R.id.search_field);
-            search(editText.getText().toString());
+            searchedTag = editText.getText().toString();
+            search(searchedTag);
         }
     });
 
-    search("snow");
+    search(searchedTag);
 }
 
 public void search(String tag)
 {
-    RestAdapter restAdapter = new RestAdapter.Builder()
-            .setEndpoint(BASE_URL)
-            .build();
 
-    instagramapi apiService =
-            restAdapter.create(instagramapi.class);
+
+
 
     apiService.getTag(tag, new Callback<InstagramItem>()
     {
         @Override
         public void success(InstagramItem instagramItem, Response response)
         {
+            latestSearchItem = instagramItem;
             loadImages(instagramItem.getData());
         }
 
@@ -106,21 +112,56 @@ public void search(String tag)
     });
 }
 
+private void loadMore(String tag)
+{
+    apiService.loadMore(tag, latestSearchItem.getPagination().getNextMaxTagId(), new Callback<InstagramItem>()
+    {
+        @Override
+        public void success(InstagramItem instagramItem, Response response)
+        {
+            latestSearchItem = instagramItem;
+            loadMoreImages(instagramItem.getData());
+        }
+
+        @Override
+        public void failure(RetrofitError retrofitError)
+        {
+            Log.d("TAG", retrofitError.getMessage());
+        }
+    });
+
+}
+
 private void loadImages(List<Datum> list)
 {
     log(list.get(0).getImages().getThumbnail().getUrl());
-    PairPhotoItem[] pairs = new PairPhotoItem[10];
+
+    for (int i = 0; i < list.size();)
+    {
+
+        PhotoItem photoItem = new PhotoItem(list.get(i).getId(),list.get(i).getImages().getThumbnail().getUrl());
+        PhotoItem photoItem2 = new PhotoItem(list.get(i+1).getId(),list.get(i+1).getImages().getThumbnail().getUrl());
+        PairPhotoItem p = new PairPhotoItem(photoItem,photoItem2);
+        listItems.add(p);
+        i = i + 2;
+    }
+
+    adapter = new MyArrayAdapter(this,R.layout.listview_item,listItems);
+    listView.setAdapter(adapter);
+}
+
+private void loadMoreImages(List<Datum> list)
+{
+    log(list.get(0).getImages().getThumbnail().getUrl());
     for (int i = 0; i < list.size();)
     {
         PhotoItem photoItem = new PhotoItem(list.get(i).getId(),list.get(i).getImages().getThumbnail().getUrl());
         PhotoItem photoItem2 = new PhotoItem(list.get(i+1).getId(),list.get(i+1).getImages().getThumbnail().getUrl());
-        pairs[i/2] = new PairPhotoItem(photoItem,photoItem2);
+        PairPhotoItem p = new PairPhotoItem(photoItem,photoItem2);
+        listItems.add(p);
         i = i + 2;
     }
-
-    MyArrayAdapter adapter = new MyArrayAdapter(this,R.layout.listview_item,pairs);
-
-    listView.setAdapter(adapter);
+    adapter.notifyDataSetChanged();
 }
 
 private void log(String s)
