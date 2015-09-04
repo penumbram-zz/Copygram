@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.penumbra.hiporam.R;
 import com.example.penumbra.hiporam.model.PhotoItem;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by penumbra on 04.09.2015.
@@ -42,7 +43,7 @@ public class MyArrayAdapter extends ArrayAdapter<PhotoItem>
         PhotoItem photoItem = photoItems[position];
 
         ImageView imageView = (ImageView) view.findViewById(R.id.list_item_image);
-
+        Picasso.with(context).load(photoItem.url).into(imageView);
 
         return view;
     }

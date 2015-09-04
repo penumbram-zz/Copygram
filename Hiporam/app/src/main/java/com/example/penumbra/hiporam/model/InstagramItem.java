@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-
+import com.example.penumbra.hiporam.model.Datum;
+import com.example.penumbra.hiporam.model.Pagination;
+import com.example.penumbra.hiporam.model.Meta;
 
 @Generated("org.jsonschema2pojo")
 public class InstagramItem {

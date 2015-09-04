@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.example.penumbra.hiporam.API.instagramapi;
+import com.example.penumbra.hiporam.adapter.MyArrayAdapter;
 import com.example.penumbra.hiporam.model.Datum;
 import com.example.penumbra.hiporam.model.InstagramItem;
 import com.example.penumbra.hiporam.model.PhotoItem;
@@ -72,13 +73,18 @@ protected void onCreate(Bundle savedInstanceState)
 private void loadImages(List<Datum> list)
 {
     log(list.get(0).getImages().getThumbnail().getUrl());
+    PhotoItem[] photoItems = new PhotoItem[20];
 
-    for (Datum datum : list)
+    for (int i = 0; i < list.size(); i++)
     {
-        PhotoItem photoItem = new PhotoItem(datum.getId(),datum.getImages().getThumbnail().getUrl());
-
+        PhotoItem photoItem = new PhotoItem(list.get(i).getId(),list.get(i).getImages().getThumbnail().getUrl());
+        photoItems[i] = photoItem;
     }
 
+    MyArrayAdapter adapter = new MyArrayAdapter(this,R.layout.listview_item,photoItems);
+
+    ListView listView = (ListView) findViewById(R.id.list_view);
+    listView.setAdapter(adapter);
 }
 
 private void log(String s)
