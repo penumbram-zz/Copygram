@@ -9,19 +9,81 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.SearchView;
+
+import com.example.penumbra.hiporam.API.instagramapi;
+import com.example.penumbra.hiporam.model.Datum;
+import com.example.penumbra.hiporam.model.InstagramItem;
+import com.example.penumbra.hiporam.model.PhotoItem;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class MainActivity extends ActionBarActivity
 {
-
+public static final String BASE_URL = "https://api.instagram.com/v1";
+private ListView mainListView ;
+private ArrayAdapter<String> listAdapter ;
 @Override
 protected void onCreate(Bundle savedInstanceState)
 {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
     setUpActionBar();
+
+    RestAdapter restAdapter = new RestAdapter.Builder()
+            .setEndpoint(BASE_URL)
+            .build();
+
+    instagramapi apiService =
+            restAdapter.create(instagramapi.class);
+
+    String tag = "snow";
+    apiService.getTag(tag, new Callback<InstagramItem>()
+    {
+        @Override
+        public void success(InstagramItem instagramItem, Response response)
+        {
+            loadImages(instagramItem.getData());
+        }
+
+        @Override
+        public void failure(RetrofitError retrofitError)
+        {
+            Log.d("TAG",retrofitError.getMessage());
+        }
+    });
+
+
+
+
+
+}
+
+private void loadImages(List<Datum> list)
+{
+    log(list.get(0).getImages().getThumbnail().getUrl());
+
+    for (Datum datum : list)
+    {
+        PhotoItem photoItem = new PhotoItem(datum.getId(),datum.getImages().getThumbnail().getUrl());
+
+    }
+
+}
+
+private void log(String s)
+{
+    Log.d("TAG",s);
 }
 
 private void setUpActionBar()
