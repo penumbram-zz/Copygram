@@ -11,24 +11,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.penumbra.hiporam.R;
+import com.example.penumbra.hiporam.model.PairPhotoItem;
 import com.example.penumbra.hiporam.model.PhotoItem;
 import com.squareup.picasso.Picasso;
 
 /**
  * Created by penumbra on 04.09.2015.
  */
-public class MyArrayAdapter extends ArrayAdapter<PhotoItem>
+public class MyArrayAdapter extends ArrayAdapter<PairPhotoItem>
 {
     Context context;
     int resource;
-    PhotoItem[] photoItems;
+    PairPhotoItem[] pairPhotoItems;
 
-    public MyArrayAdapter(Context context, int resource, PhotoItem[] objects)
+    public MyArrayAdapter(Context context, int resource, PairPhotoItem[] objects)
     {
         super(context, resource, objects);
         this.context = context;
         this.resource = resource;
-        this.photoItems = objects;
+        this.pairPhotoItems = objects;
     }
 
     @Override
@@ -40,10 +41,13 @@ public class MyArrayAdapter extends ArrayAdapter<PhotoItem>
             view = inflater.inflate(resource,parent,false);
         }
 
-        PhotoItem photoItem = photoItems[position];
+        PhotoItem photoItem = pairPhotoItems[position].firstPhotoItem;
+        PhotoItem photoItem2 = pairPhotoItems[position].secondPhotoItem;
 
-        ImageView imageView = (ImageView) view.findViewById(R.id.list_item_image);
-        Picasso.with(context).load(photoItem.url).into(imageView);
+        ImageView imageView = (ImageView) view.findViewById(R.id.list_item_image_left);
+        Picasso.with(context).load(photoItem.url).fit().centerCrop().into(imageView);
+        ImageView imageView2 = (ImageView) view.findViewById(R.id.list_item_image_right);
+        Picasso.with(context).load(photoItem2.url).fit().centerCrop().into(imageView2);
 
         return view;
     }
