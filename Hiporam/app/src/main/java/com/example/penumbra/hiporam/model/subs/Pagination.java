@@ -1,5 +1,7 @@
 package com.example.penumbra.hiporam.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,10 +10,14 @@ import javax.annotation.Generated;
 @Generated("org.jsonschema2pojo")
 public class Pagination {
 
+    @SerializedName("next_max_tag_id")
     private String nextMaxTagId;
     private String deprecationWarning;
+    @SerializedName("next_max_id")
     private String nextMaxId;
+    @SerializedName("next_min_id")
     private String nextMinId;
+    @SerializedName("min_tag_id")
     private String minTagId;
     private String nextUrl;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

@@ -97,7 +97,9 @@ public void search(String tags)
         @Override
         public void success(InstagramItem instagramItem, Response response)
         {
+            log("Search = " + response.getUrl());
             latestSearchItem = instagramItem;
+            listItems.clear();
             loadImages(instagramItem.getData());
         }
 
@@ -112,13 +114,13 @@ public void search(String tags)
 
 private void loadMore(String tag)
 {
-
-    apiService.loadMore(tag, latestSearchItem.getPagination().getNextMaxTagId(),latestSearchItem.getPagination().getNextMinId(), new Callback<InstagramItem>()
+    log(" --- LOAD MORE PAGINATION --- ");
+    apiService.loadMore(tag, latestSearchItem.getPagination().getNextMaxTagId(), new Callback<InstagramItem>()
     {
         @Override
         public void success(InstagramItem instagramItem, Response response)
         {
-            Log.d(TAG,response.getUrl());
+            log("loadMore = " + response.getUrl());
             latestSearchItem = instagramItem;
             loadMoreImages(instagramItem.getData());
         }
@@ -134,8 +136,6 @@ private void loadMore(String tag)
 
 private void loadImages(List<Datum> list)
 {
-    log(list.get(0).getImages().getThumbnail().getUrl());
-
     for (int i = 0; i < list.size();)
     {
 
@@ -152,21 +152,36 @@ private void loadImages(List<Datum> list)
 
 private void loadMoreImages(List<Datum> list)
 {
-    log(list.get(0).getImages().getThumbnail().getUrl());
+    log("Size: " + list.size());
+    if (list.size() == 0)
+        Toast.makeText(MainActivity.this,"End of Content",Toast.LENGTH_LONG).show();
+
     for (int i = 0; i < list.size();)
     {
         PhotoItem photoItem = new PhotoItem(list.get(i).getId(),list.get(i).getImages().getThumbnail().getUrl());
-        PhotoItem photoItem2 = new PhotoItem(list.get(i+1).getId(),list.get(i+1).getImages().getThumbnail().getUrl());
+        PhotoItem photoItem2 = new PhotoItem("Blank","http://www.suplugins.com/podium/images/placeholder-03.png");
+        if (list.size() != i+1)
+        {
+            photoItem2.url = list.get(i+1).getImages().getThumbnail().getUrl();
+        }
+
         PairPhotoItem p = new PairPhotoItem(photoItem,photoItem2);
         listItems.add(p);
         i = i + 2;
     }
-    adapter.notifyDataSetChanged();
+    runOnUiThread(new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            adapter.notifyDataSetChanged();
+        }
+    });
 }
 
 private void log(String s)
 {
-    Log.d("TAG",s);
+    Log.d(TAG,s);
 }
 
 private void setUpActionBar()

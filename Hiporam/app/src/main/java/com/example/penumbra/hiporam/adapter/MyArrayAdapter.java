@@ -53,9 +53,10 @@ public class MyArrayAdapter extends ArrayAdapter<PairPhotoItem>
         Picasso.with(context).load(photoItem2.url).fit().centerCrop().into(imageView2);
         view.setTag(position);
         TextView textViewLeft = (TextView) view.findViewById(R.id.list_item_image_left_text);
-        textViewLeft.setText("Left");
+        textViewLeft.setText("Picture " + String.valueOf((position*2)+1));
         TextView textViewRight = (TextView) view.findViewById(R.id.list_item_image_right_text);
-        textViewRight.setText("Right");
+        textViewRight.setText("Picture " + String.valueOf((position*2)+2));
+        Log.d("TAG","Position: " + position);
         return view;
     }
 }

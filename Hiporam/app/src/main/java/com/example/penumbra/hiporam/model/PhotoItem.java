@@ -5,12 +5,12 @@ package com.example.penumbra.hiporam.model;
  */
 public class PhotoItem
 {
-    public String name;
+    public String text;
     public String url;
 
-    public PhotoItem(String name, String url)
+    public PhotoItem(String text, String url)
     {
-        this.name = name;
+        this.text = text;
         this.url = url;
     }
 }
