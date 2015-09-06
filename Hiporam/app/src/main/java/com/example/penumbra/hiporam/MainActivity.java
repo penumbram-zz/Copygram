@@ -39,6 +39,7 @@ import retrofit.client.Response;
 
 public class MainActivity extends ActionBarActivity
 {
+private static final String TAG = "MainActivityLog";
 public static final String BASE_URL = "https://api.instagram.com/v1";
 private ListView mainListView ;
 private ArrayAdapter<String> listAdapter ;
@@ -91,9 +92,6 @@ protected void onCreate(Bundle savedInstanceState)
 public void search(String tags)
 {
 
-
-
-
     apiService.getTag(tags, new Callback<InstagramItem>()
     {
         @Override
@@ -107,6 +105,7 @@ public void search(String tags)
         public void failure(RetrofitError retrofitError)
         {
             Log.d("TAG",retrofitError.getMessage());
+            Toast.makeText(MainActivity.this,"Search Failed",Toast.LENGTH_LONG).show();
         }
     });
 }
@@ -119,6 +118,7 @@ private void loadMore(String tag)
         @Override
         public void success(InstagramItem instagramItem, Response response)
         {
+            Log.d(TAG,response.getUrl());
             latestSearchItem = instagramItem;
             loadMoreImages(instagramItem.getData());
         }
