@@ -47,17 +47,9 @@ import retrofit.client.Response;
 public class MainActivity extends ActionBarActivity
 {
 private static final String TAG = "MainActivityLog";
-public static final String BASE_URL = "https://api.instagram.com/v1";
-private ListView mainListView ;
-private ArrayAdapter<String> listAdapter ;
-
-private ListView listView;
-InstagramItem latestSearchItem;
-RestAdapter restAdapter;
-instagramapi apiService;
+public ListView listView;
 String searchedTag = "snow";
-MyArrayAdapter adapter;
-ArrayList<PairPhotoItem> listItems = new ArrayList<PairPhotoItem>();
+DataManager dataManager;
 
 @Override
 protected void onCreate(Bundle savedInstanceState)
@@ -65,20 +57,21 @@ protected void onCreate(Bundle savedInstanceState)
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     setUpActionBar();
-
     listView = (ListView) findViewById(R.id.list_view);
 
-    restAdapter = new RestAdapter.Builder()
-            .setEndpoint(BASE_URL)
+    dataManager = new DataManager(this);
+
+    dataManager.restAdapter = new RestAdapter.Builder()
+            .setEndpoint(dataManager.BASE_URL)
             .build();
-    apiService = restAdapter.create(instagramapi.class);
+    dataManager.apiService = dataManager.restAdapter.create(instagramapi.class);
 
     listView.setOnScrollListener(new MyOnScrollListener()
     {
         @Override
         public void onLoadMore(int page, int totalItemsCount)
         {
-            loadMore(searchedTag);
+            dataManager.loadMore(searchedTag);
         }
     });
     final ImageView searchTrigger = (ImageView) findViewById(R.id.search_trigger);
@@ -121,7 +114,7 @@ protected void onCreate(Bundle savedInstanceState)
         }
     });
 
-    search(searchedTag);
+    dataManager.search(searchedTag);
 }
 
 private void searchAction()
@@ -129,98 +122,9 @@ private void searchAction()
     YoYo.with(Techniques.Shake).duration(800).playOn((ImageView) findViewById(R.id.search_trigger));
     EditText editText = (EditText) findViewById(R.id.search_field);
     searchedTag = editText.getText().toString();
-    search(searchedTag);
+    dataManager.search(searchedTag);
 }
 
-public void search(String tags)
-{
-
-    apiService.getTag(tags, new Callback<InstagramItem>()
-    {
-        @Override
-        public void success(InstagramItem instagramItem, Response response)
-        {
-            log("Search = " + response.getUrl());
-            latestSearchItem = instagramItem;
-            listItems.clear();
-            loadImages(instagramItem.getData());
-        }
-
-        @Override
-        public void failure(RetrofitError retrofitError)
-        {
-            Log.d("TAG",retrofitError.getMessage());
-            Toast.makeText(MainActivity.this,"Search Failed",Toast.LENGTH_LONG).show();
-        }
-    });
-}
-
-private void loadMore(String tag)
-{
-    log(" --- LOAD MORE PAGINATION --- ");
-    apiService.loadMore(tag, latestSearchItem.getPagination().getNextMaxTagId(), new Callback<InstagramItem>()
-    {
-        @Override
-        public void success(InstagramItem instagramItem, Response response)
-        {
-            log("loadMore = " + response.getUrl());
-            latestSearchItem = instagramItem;
-            loadMoreImages(instagramItem.getData());
-        }
-
-        @Override
-        public void failure(RetrofitError retrofitError)
-        {
-            Log.d("TAG", retrofitError.getMessage());
-        }
-    });
-
-}
-
-private void loadImages(List<Datum> list)
-{
-    for (int i = 0; i < list.size();)
-    {
-
-        PhotoItem photoItem = new PhotoItem(list.get(i).getId(),list.get(i).getImages().getThumbnail().getUrl());
-        PhotoItem photoItem2 = new PhotoItem(list.get(i+1).getId(),list.get(i+1).getImages().getThumbnail().getUrl());
-        PairPhotoItem p = new PairPhotoItem(photoItem,photoItem2);
-        listItems.add(p);
-        i = i + 2;
-    }
-
-    adapter = new MyArrayAdapter(this,R.layout.listview_item,listItems);
-    listView.setAdapter(adapter);
-}
-
-private void loadMoreImages(List<Datum> list)
-{
-    log("Size: " + list.size());
-    if (list.size() == 0)
-        Toast.makeText(MainActivity.this,"End of Content",Toast.LENGTH_LONG).show();
-
-    for (int i = 0; i < list.size();)
-    {
-        PhotoItem photoItem = new PhotoItem(list.get(i).getId(),list.get(i).getImages().getThumbnail().getUrl());
-        PhotoItem photoItem2 = new PhotoItem("Blank","http://www.suplugins.com/podium/images/placeholder-03.png");
-        if (list.size() != i+1)
-        {
-            photoItem2.url = list.get(i+1).getImages().getThumbnail().getUrl();
-        }
-
-        PairPhotoItem p = new PairPhotoItem(photoItem,photoItem2);
-        listItems.add(p);
-        i = i + 2;
-    }
-    runOnUiThread(new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            adapter.notifyDataSetChanged();
-        }
-    });
-}
 
 private void log(String s)
 {
