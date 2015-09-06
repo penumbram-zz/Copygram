@@ -7,18 +7,25 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.example.penumbra.hiporam.API.instagramapi;
 import com.example.penumbra.hiporam.adapter.MyArrayAdapter;
 import com.example.penumbra.hiporam.listener.MyOnScrollListener;
@@ -74,18 +81,54 @@ protected void onCreate(Bundle savedInstanceState)
             loadMore(searchedTag);
         }
     });
-    ImageView searchTrigger = (ImageView) findViewById(R.id.search_trigger);
+    final ImageView searchTrigger = (ImageView) findViewById(R.id.search_trigger);
     searchTrigger.setOnClickListener(new View.OnClickListener()
     {
         @Override
         public void onClick(View v)
         {
-          //  Toast.makeText(MainActivity.this,"Search",Toast.LENGTH_LONG).show();
-            EditText editText = (EditText) findViewById(R.id.search_field);
-            searchedTag = editText.getText().toString();
-            search(searchedTag);
+            searchAction();
         }
     });
+
+    final EditText editText = (EditText) findViewById(R.id.search_field);
+    editText.setOnEditorActionListener(new TextView.OnEditorActionListener()
+    {
+        @Override
+        public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent)
+        {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_GO)
+            {
+                searchAction();
+            }
+            return false;
+        }
+    });
+    editText.setOnFocusChangeListener(new View.OnFocusChangeListener()
+    {
+        @Override
+        public void onFocusChange(View view, boolean b)
+        {
+            editText.post(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                }
+            });
+        }
+    });
+
+    search(searchedTag);
+}
+
+private void searchAction()
+{
+    YoYo.with(Techniques.Shake).duration(800).playOn((ImageView) findViewById(R.id.search_trigger));
+    EditText editText = (EditText) findViewById(R.id.search_field);
+    searchedTag = editText.getText().toString();
     search(searchedTag);
 }
 
