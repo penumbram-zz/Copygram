@@ -1,47 +1,26 @@
 package com.example.penumbra.hiporam;
 
 import android.content.Context;
-import android.provider.ContactsContract;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.example.penumbra.hiporam.API.instagramapi;
-import com.example.penumbra.hiporam.adapter.MyArrayAdapter;
 import com.example.penumbra.hiporam.listener.MyOnScrollListener;
-import com.example.penumbra.hiporam.model.Datum;
-import com.example.penumbra.hiporam.model.InstagramItem;
-import com.example.penumbra.hiporam.model.PairPhotoItem;
-import com.example.penumbra.hiporam.model.PhotoItem;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 public class MainActivity extends ActionBarActivity
@@ -66,51 +45,29 @@ protected void onCreate(Bundle savedInstanceState)
             .build();
     dataManager.apiService = dataManager.restAdapter.create(instagramapi.class);
 
-    listView.setOnScrollListener(new MyOnScrollListener()
-    {
+    listView.setOnScrollListener(new MyOnScrollListener() {
         @Override
-        public void onLoadMore(int page, int totalItemsCount)
-        {
+        public void onLoadMore(int page, int totalItemsCount) {
             dataManager.loadMore(searchedTag);
         }
     });
     final ImageView searchTrigger = (ImageView) findViewById(R.id.search_trigger);
-    searchTrigger.setOnClickListener(new View.OnClickListener()
-    {
+    searchTrigger.setOnClickListener(new View.OnClickListener() {
         @Override
-        public void onClick(View v)
-        {
+        public void onClick(View v) {
             searchAction();
         }
     });
 
     final EditText editText = (EditText) findViewById(R.id.search_field);
-    editText.setOnEditorActionListener(new TextView.OnEditorActionListener()
-    {
+    editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
         @Override
-        public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent)
-        {
-            boolean handled = false;
-            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_GO)
-            {
+        public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
                 searchAction();
+                return true;
             }
             return false;
-        }
-    });
-    editText.setOnFocusChangeListener(new View.OnFocusChangeListener()
-    {
-        @Override
-        public void onFocusChange(View view, boolean b)
-        {
-            editText.post(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                }
-            });
         }
     });
 
@@ -119,6 +76,8 @@ protected void onCreate(Bundle savedInstanceState)
 
 private void searchAction()
 {
+    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
     YoYo.with(Techniques.Shake).duration(800).playOn((ImageView) findViewById(R.id.search_trigger));
     EditText editText = (EditText) findViewById(R.id.search_field);
     searchedTag = editText.getText().toString();
